@@ -1,9 +1,29 @@
 import { db } from '@/db/client';
-import { categories, users } from '@/db/schema';
+import { categories, habits as habit_data, users } from '@/db/schema';
 import { seedCategoriesIfEmpty, seedHabitLogsIfEmpty, seedHabitsIfEmpty, seedTargetsIfEmpty, seedUsersIfEmpty, } from '@/db/seed';
 import { eq } from 'drizzle-orm';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { createContext, useContext, useEffect, useState } from 'react';
+
+
+
+export type Habit = {id: number; user_id: number; category_id: number; 
+                     name: string; metric_type: string; icon_id: number;
+                     created_at: string;
+                    };
+
+// habit construction ripped from sample project                    
+type HabitsContextType = {habits: Habit[];
+setHabits: React.Dispatch<React.SetStateAction<Habit[]>>;
+};
+
+export const HabitsContext = createContext<HabitsContextType | null>(null);
+
+const [habits, setHabits] = useState<Habit[]>([]);
+
+
+
+
 
 
 
@@ -18,6 +38,7 @@ type SessionContextType = { currentUser: User | null; // defines what the sessio
       logout: () => void;
       deleteProfile: () => Promise<void>;
 };
+
 
 
 // creates the session context, null until a user logs in
@@ -69,12 +90,14 @@ const result = await db.select().from(users).where(eq(users.username, username))
 const user = result[0];
 if (!user || user.password !== password) return false;
     setCurrentUser({ id: user.id, username: user.username });
+    const rows = await db.select().from(habit_data).where(eq(habit_data.user_id, user.id));
+    setHabits(rows);
     return true;
 };
 
 
 
-// creates a new account and auto-creates starter categories
+// creates a new account and auto-creates starter categories & sets an empty habit state for use
 const register = async (username: string, password: string): Promise<boolean> => {
 const existing = await db.select().from(users).where(eq(users.username, username));
 if (existing.length > 0) return false;
@@ -83,6 +106,7 @@ await db.insert(users).values({ username, password });
 const newUser = await db.select().from(users).where(eq(users.username, username));
 const user = newUser[0];
 
+
 if (!user) return false;
   await db.insert(categories).values([
   {user_id: user.id, name: 'Health & Fitness', colour_id: 6},
@@ -90,6 +114,9 @@ if (!user) return false;
   {user_id: user.id, name: 'Productivity', colour_id: 10},
 ]);
   setCurrentUser({ id: user.id, username: user.username });
+  const rows = await db.select().from(habit_data).where(eq(habit_data.user_id, user.id));
+  setHabits(rows);
+
   return true;
 };
 
@@ -111,9 +138,11 @@ if (!currentUser) return;
 // wraps the app in session context and handles auth routing
 return (
 <SessionContext.Provider value={{ currentUser, login, register, logout, deleteProfile }}>
+<HabitsContext.Provider value={{ habits, setHabits }}>
   <AuthHandler>
     <Stack screenOptions={{ headerShown: false }} />
   </AuthHandler>
+</HabitsContext.Provider>
 </SessionContext.Provider>
 );
 }
