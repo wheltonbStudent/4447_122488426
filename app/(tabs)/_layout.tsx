@@ -7,6 +7,17 @@ export default function TabLayout() {
         name="index"
         options={{ title: 'Home' }}
       />
+
+    <Tabs.Screen
+        name="habits"
+        options={{ title: 'habits' }}
+      />
+
+    <Tabs.Screen
+        name="categories"
+        options={{ title: 'categories' }}
+      />
+
       <Tabs.Screen
         name="account"
         options={{ title: 'Account' }}

@@ -4,31 +4,37 @@
 // pill-switch guide src: https://github.com/chelseafarley/react-native-switch-demo/blob/master/App.js
 // copilot conversation generating and utilising radio button component and metric entry: https://copilot.microsoft.com/shares/d4SXvyMHUNhS3QjfB2WzW
 
-import { AntDesign } from "@expo/vector-icons";
+import { AntDesign, } from "@expo/vector-icons";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { useCallback, useRef, useState } from "react";
-import { FlatList, Modal, Platform, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View, } from "react-native";
+import { FlatList, Modal, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from "react-native";
 
 type OptionItem = {
   value: number;
   label: string;
+  icon?: string;
 };
 
 interface DropDownProps {
   data: OptionItem[];
   onChange: (item: OptionItem) => void;
   placeholder: string;
+  defaultValue?: string;
+
 }
 
 export default function Dropdown({
   data,
   onChange,
   placeholder,
+  defaultValue,
+
 }: DropDownProps) {
   const [expanded, setExpanded] = useState(false);
-
-  const toggleExpanded = useCallback(() => setExpanded(!expanded), [expanded]);
-
-  const [value, setValue] = useState("");
+  
+  const [selectedIcon, setSelectedIcon] = useState<string | null>(null);
+  
+  const [value, setValue] = useState(defaultValue || "");
 
   const buttonRef = useRef<View>(null);
 
@@ -36,31 +42,38 @@ export default function Dropdown({
 
   const onSelect = useCallback((item: OptionItem) => {
     onChange(item);
+    setSelectedIcon(item.icon ?? null);
     setValue(item.label);
     setExpanded(false);
   }, []);
+
+
+
+
   return (
-    <View
-      ref={buttonRef}
-      onLayout={(event) => {
-        const layout = event.nativeEvent.layout;
-        const topOffset = layout.y;
-        const heightOfComponent = layout.height;
-
-        const finalValue =
-          topOffset + heightOfComponent + (Platform.OS === "android" ? -32 : 3);
-
-        setTop(finalValue);
-      }}
-    >
+    <View ref={buttonRef}>
+      
       <TouchableOpacity
         style={styles.button}
         activeOpacity={0.8}
-        onPress={toggleExpanded}
-      >
-        <Text style={styles.text}>{value || placeholder}</Text>
-        <AntDesign name={expanded ? "caretup" : "caretdown"} />
+        onPress={() => { 
+          buttonRef.current?.measureInWindow((x, y, width, height) => {setTop(y + height);
+                          setExpanded(true);});}}>
+
+
+            <View style={styles.selectedRow}>
+                {selectedIcon ? (
+                 <Ionicons name={selectedIcon} size={18} style={{ marginRight: 8 }} />
+                     ) : null}
+             <Text style={styles.text}>{value || placeholder}</Text>
+            </View>
+      
+
+
+        <AntDesign name={expanded ? "caret-up" : "caret-down"} />
       </TouchableOpacity>
+
+
       {expanded ? (
         <Modal visible={expanded} transparent>
           <TouchableWithoutFeedback onPress={() => setExpanded(false)}>
@@ -77,13 +90,19 @@ export default function Dropdown({
                   keyExtractor={(item) => item.value.toString()}
                   data={data}
                   renderItem={({ item }) => (
-                    <TouchableOpacity
-                      activeOpacity={0.8}
-                      style={styles.optionItem}
-                      onPress={() => onSelect(item)}
-                    >
-                      <Text>{item.label}</Text>
-                    </TouchableOpacity>
+                    <TouchableOpacity 
+                        activeOpacity={0.8}
+                        style={styles.optionItem}
+                         onPress={() => onSelect(item)}>
+
+  <View style={styles.optionRow}>
+    {item.icon ? (
+      <Ionicons name={item.icon} size={18} style={{ marginRight: 8 }} />
+    ) : null}
+    <Text>{item.label}</Text>
+  </View>
+</TouchableOpacity>
+
                   )}
                   ItemSeparatorComponent={() => (
                     <View style={styles.separator} />
@@ -135,4 +154,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     borderRadius: 8,
   },
-});
+  selectedRow: {
+  flexDirection: "row",
+  alignItems: "center",
+},
+optionRow: {
+  flexDirection: "row",
+  alignItems: "center",
+},});
