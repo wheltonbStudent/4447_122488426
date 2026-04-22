@@ -14,7 +14,7 @@ export default function TabLayout() {
       />
 
     <Tabs.Screen
-        name="categories"
+        name="category"
         options={{ title: 'categories' }}
       />
 

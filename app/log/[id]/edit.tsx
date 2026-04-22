@@ -36,8 +36,21 @@ const rows = await db.select().from(logsTable).where(eq(logsTable.id, Number(id)
 if (rows.length > 0) {
     setLog(rows[0]);
     setValue(rows[0].value.toString());
-    setDate(new Date(rows[0].logged_at));
-}};
+
+
+// manually splitting string into date & time components since there is no javascript -- solution described in debug using copilot: 
+const parts = rows[0].logged_at.split('T');
+const date_parts = parts[0].split('-');
+const time_parts = parts[1].split(':');
+const processed_datetime_string = new Date(
+    parseInt(date_parts[0]),
+    parseInt(date_parts[1]) - 1,
+    parseInt(date_parts[2]),
+    parseInt(time_parts[0]),
+    parseInt(time_parts[1]),
+    parseInt(time_parts[2] || '0')
+);
+setDate(processed_datetime_string);}};
     void load_log(); }, []);
 
 
@@ -61,9 +74,16 @@ if (!value || isNaN(parseInt(value))) {
     return;}
 
 setError(false);
-// pass updated fields back with a converter from date
-await db.update(logsTable).set({value: parseInt(value), logged_at: date.toISOString(),}).where(eq(logsTable.id, Number(id)));
-    router.back();
+
+const year = date.getFullYear();
+const month = String(date.getMonth() + 1).padStart(2, '0'); // regular month offset for dealing w [0-11] 
+const day = String(date.getDate()).padStart(2, '0');
+const hours = String(date.getHours()).padStart(2, '0');
+const minutes = String(date.getMinutes()).padStart(2, '0');
+const seconds = String(date.getSeconds()).padStart(2, '0');
+const local_Datetime = `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
+
+await db.update(logsTable).set({value: parseInt(value), logged_at: local_Datetime,}).where(eq(logsTable.id, Number(id)));    router.back();
 };
 
 
@@ -80,9 +100,15 @@ return (
 
         <FormField label="Amount" value={value} onChangeText={setValue} keyboardType="numeric"/>
 
+
+
+
         <Text style={styles.label}>Date</Text>
+        
         <Pressable onPress={() => setShow_date(true)} style={styles.button_selector}>
-            <Text>{date.toISOString().substring(0, 10)}</Text>
+        <Text>
+            {String(date.getDate()).padStart(2, '0')}-{String(date.getMonth() + 1).padStart(2, '0')}-{date.getFullYear()}
+        </Text>    
         </Pressable>
 
         {show_date && (
@@ -91,26 +117,36 @@ return (
             display={'spinner'}
             mode="date"
             is24Hour={true}
-            onChange={on_date_change}
-        />
+            onChange={on_date_change}/>
         )}
 
+
+
+
+
+
+
         <Text style={styles.label}>Time</Text>
+
         <Pressable onPress={() => setShow_time(true)} style={styles.button_selector}>
-            <Text>{date.toISOString().substring(11, 16)}</Text>
+        <Text>
+            {String(date.getHours()).padStart(2, '0')}:{String(date.getMinutes()).padStart(2, '0')}
+        </Text>
         </Pressable>
 
         {show_time && (
         <DateTimePicker
-            value={date}
-            mode="time"
-            is24Hour={true}
-            display={'spinner'}
-            onChange={on_time_change}
-        />
-        )}
-
+                        value={date}
+                        mode="time"
+                        is24Hour={true}
+                        display={'spinner'}
+                        onChange={on_time_change}/>)}
+    
     </View>
+
+
+
+
 
         {error ? <Text style={styles.errorText}>enter a valid number</Text> : null}
 
@@ -120,7 +156,8 @@ return (
 
         <PrimaryButton label="Cancel" variant="secondary" onPress={() => router.back()} />
 
-    </View>
+        </View>
+
 </ScrollView>
 </SafeAreaView>
 );}

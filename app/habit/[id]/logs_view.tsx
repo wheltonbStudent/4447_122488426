@@ -2,12 +2,12 @@ import { Log } from '@/app/_layout';
 import PrimaryButton from '@/components/ui/primary-button';
 import { db } from '@/db/client';
 import { habit_logs as logsTable } from '@/db/schema';
+import { useFocusEffect } from '@react-navigation/native';
 import { eq } from 'drizzle-orm';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
 
 
 
@@ -19,27 +19,34 @@ const [logs, setLogs] = useState<Log[]>([]);
 
 
 
-
-// log loader 
-useEffect(() => {
+// new log loader that refreshes logs on every view 
+useFocusEffect(
+useCallback(() => {
 const load_logs = async () => {
 const rows = await db.select().from(logsTable).where(eq(logsTable.habit_id, Number(id)));
     setLogs(rows);
 };
     void load_logs();
-}, []);
+}, [])
+);
 
 
 
 const get_date_label = (date_string: string) => {
-const today = new Date().toISOString().substring(0, 10); // stores todays date and lops off all the non-date parts of the string
+
+const current = new Date(); // month is being offset by +1 here becasue indexing starts at [0]-[11] instead of [1]-[12] -_-
+
+const today = `${current.getFullYear()}-${String(current.getMonth() + 1).padStart(2, '0')}-${String(current.getDate()).padStart(2, '0')}`;
+
+
 
 const yesterday_date = new Date();
 yesterday_date.setDate(yesterday_date.getDate() - 1);
-const yesterday = yesterday_date.toISOString().substring(0, 10); // literally just today - 1 for yesterday :P
+//same lil workaround for lining up the month array with the regular 1-12 calendar format
+const yesterday = `${yesterday_date.getFullYear()}-${String(yesterday_date.getMonth() + 1).padStart(2, '0')}-${String(yesterday_date.getDate()).padStart(2, '0')}`;
+
 
 const log_date = date_string.substring(0, 10); // just gets the date part of a given logs full date-time string
-
 
 
 if (log_date === today) return 'Today'; 

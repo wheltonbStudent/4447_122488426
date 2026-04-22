@@ -15,7 +15,14 @@ const { id } = useLocalSearchParams<{ id: string }>();
 const router = useRouter();
 const [value, setValue] = useState('');
 const [error, setError] = useState(false);
-
+const current = new Date(); 
+const year = current.getFullYear();
+const month = String(current.getMonth()+1).padStart(2, '0'); // pads numeric so single digit values index right (1 becomes 01, 2,02 so it lines up consistently with 2 digit values)
+const day = String(current.getDate()).padStart(2, '0');
+const hours = String(current.getHours()).padStart(2, '0');
+const minutes = String(current.getMinutes()).padStart(2, '0');
+const seconds = String(current.getSeconds()).padStart(2, '0'); 
+const local_Datetime = `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`; //manually building my own local datetime string
 
 
 const save_log = async () => {
@@ -24,7 +31,8 @@ if (!value || isNaN(parseInt(value))) {
     return;}
 
 setError(false);
-await db.insert(logsTable).values({habit_id: Number(id), logged_at: new Date().toISOString(), value: parseInt(value),});
+await db.insert(logsTable).values({habit_id: Number(id), logged_at: local_Datetime, value: parseInt(value),});
+console.log('log saved for habit', id, 'value', value, 'at', local_Datetime);
 router.replace('/(tabs)');
 };
 
