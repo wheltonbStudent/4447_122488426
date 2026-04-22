@@ -6,6 +6,10 @@ import { Stack, useRouter, useSegments } from 'expo-router';
 import { createContext, useContext, useEffect, useState } from 'react';
 
 
+export type Log = { id: number; habit_id: number; logged_at: string; value: number; };
+
+
+
 export type Category = { id: number; user_id: number; name: string; colour_id: number;};
 
 type CategoriesContextType = {categories: Category[];

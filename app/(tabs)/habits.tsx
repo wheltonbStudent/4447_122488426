@@ -1,7 +1,6 @@
 import { Habit, HabitsContext } from '@/app/_layout';
 import HabitCard from '@/components/HabitCard';
 import PrimaryButton from '@/components/ui/primary-button';
-import ScreenHeader from '@/components/ui/screen-header';
 import { useRouter } from 'expo-router';
 import { useContext } from 'react';
 import { ScrollView, StyleSheet, Text } from 'react-native';
@@ -20,12 +19,10 @@ const { habits } = context;
 
 
 
-  return (
-    <SafeAreaView style={styles.safeArea}>
+return (
+<SafeAreaView style={styles.safeArea}>
     
-    <ScreenHeader title="Habits" subtitle={`${habits.length} habits being tracked`}/>
-
-    <PrimaryButton label="Add habit" onPress={() => router.push({ pathname: '/add-habit' })}/>
+    <PrimaryButton label="Create a new habit to track" onPress={() => router.push({ pathname: '/add-habit' })}/>
     
     <ScrollView contentContainerStyle={styles.listContent}>
         {habits.length === 0 ? ( 

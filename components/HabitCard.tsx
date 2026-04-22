@@ -12,9 +12,10 @@ export default function HabitCard({ habit }: Props) {
   const router = useRouter();
   const openDetails = () =>
     router.push({ pathname: '/habit/[id]', params: { id: habit.id.toString() } });
-  const habitSummary = `${habit.name}, Metric ${habit.metric_type}`; // table references aren't right 
-                                                                                     // (cat only contains fk category_ID and name is pulled from category)
+  const habitSummary = `${habit.name}, Metric ${habit.metric_type}`; 
 
+
+  
   return (
     <Pressable
       accessibilityLabel={`${habitSummary}, view details`}

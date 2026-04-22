@@ -41,13 +41,23 @@ const rows = await db.select().from(habitsTable).where(eq(habitsTable.user_id, s
 return (
 <SafeAreaView style={styles.safeArea}>
     <Text style={styles.name}> what do you want to do to your {habit.name} goal?</Text>
-    
 
-    <PrimaryButton label="Edit" onPress={() => router.push({ pathname: '/habit/[id]/edit', params: { id },})}/>
+
+    <PrimaryButton label="View your logged entries" onPress={() => router.push({ pathname: '/habit/[id]/logs_view', params: { id },})}/>
+
+
+    <View style={styles.buttonSpacing}>
+    <PrimaryButton label="Log a new entry " onPress={() => router.push({ pathname: '/habit/[id]/log', params: { id },})}/>
+    </View>
+
+
+    <View style={styles.buttonSpacing}>
+    <PrimaryButton label="Edit habit details" onPress={() => router.push({ pathname: '/habit/[id]/edit', params: { id },})}/>
+    </View>
 
 
     <View style={styles.backButton}>
-    <PrimaryButton label="Cancel" variant="secondary" onPress={() => router.back()} />
+    <PrimaryButton label="Cancel" variant="secondary" onPress={() => router.push({pathname:'/habits', })} />
     </View>
 
 
