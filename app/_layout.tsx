@@ -7,7 +7,7 @@ import { createContext, useContext, useEffect, useState } from 'react';
 
 
 export type Log = { id: number; habit_id: number; logged_at: string; value: number; };
-
+export type Target = { id: number; habit_id: number; period: string; amount: number; };
 
 
 export type Category = { id: number; user_id: number; name: string; colour_id: number;};

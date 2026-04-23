@@ -9,13 +9,11 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useContext, useState } from 'react';
 import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { CategoriesContext, HabitsContext, SessionContext } from '../_layout';
+import { CategoriesContext, HabitsContext, Log, SessionContext, Target, } from '../_layout';
 
 
 
 
-type Target = { id: number; habit_id: number; period: string; amount: number; };
-type Log = { id: number; habit_id: number; logged_at: string; value: number; };
 
 
 export default function HomeScreen() {
