@@ -1,1 +1,1 @@
-// empty file just because expo doesnt like me just skipping straight to the edit log subfile 
+// empty file here is only here because expo doesnt like me just skipping straight to the edit log subfile
